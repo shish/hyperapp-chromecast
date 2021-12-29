@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>HyperCast Sender Demo</title>
+	<meta charset="UTF-8">
+	<script type="module">
+		import { h, text, app } from "https://unpkg.com/hyperapp";
+		import * as hcs from "./src/index.js";
+
+		const PlayVideo1 = (state) => [
+			{ ...state, video: "Video 1" },
+			hcs.LoadMedia({
+				mediaInfo: new chrome.cast.media.MediaInfo(
+					"https://code.shishnet.org/videos/car_muse.mp4",
+					"video/mp4",
+				)
+			}),
+		];
+
+		const PlayVideo2 = (state) => [
+			{ ...state, video: "Video 2" },
+			hcs.LoadMedia({
+				mediaInfo: new chrome.cast.media.MediaInfo(
+					"https://file-examples-com.github.io/uploads/2017/04/file_example_MP4_640_3MG.mp4",
+					"video/mp4",
+				)
+			}),
+		];
+
+		app({
+			init: { video: null, cast_state: null, session_state: null },
+			view: (state) => h("main", {}, [
+				h("h1", {}, text(
+					"Media: " + (state.video || "None") +
+					" // Cast State: " + state.cast_state +
+					" // Session State: " + state.session_state
+				)),
+				h("button", { onclick: PlayVideo1 }, text("Play 1")),
+				h("button", { onclick: PlayVideo2 }, text("Play 2")),
+				h("button", { onclick: (state) => [{ ...state, video: null }, hcs.Stop()] }, text("Stop")),
+				h("button", { onclick: (state) => [{ ...state }, hcs.PlayOrPause()] }, text("Pause")),
+				h("button", { onclick: (state) => [{ ...state }, hcs.MuteOrUnmute()] }, text("Mute")),
+				h("button", { onclick: (state) => [{ ...state }, hcs.SetVolumeLevel(0.05)] }, text("Vol 0.05")),
+				h("button", { onclick: (state) => [{ ...state }, hcs.SetVolumeLevel(0.50)] }, text("Vol 0.50")),
+				h("button", { onclick: (state) => [{ ...state }, hcs.Seek(5)] }, text("Seek 5")),
+				h("button", { onclick: (state) => [{ ...state }, hcs.Seek(50)] }, text("Seek 50")),
+				h("div", { style: { width: "3em", height: "3em" } }, [
+					h("google-cast-launcher", {}),
+				]),
+			]),
+			subscriptions: (state) => [
+				hcs.SenderSub({
+					receiverApplicationId: "8FC90B73", // hypercast-receiver demo
+					//receiverApplicationId: "C3E32EED", // simple custom-css receiver
+					//receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+					onCastStateChanged(state, event) {
+						console.log("Cast state changed:", event);
+						return { ...state, cast_state: event.castState };
+					},
+					onSessionStateChanged(state, event) {
+						console.log("Session state changed:", event);
+						state = { ...state, session_state: event.sessionState };
+						switch (event.sessionState) {
+							case cast.framework.SessionState.SESSION_STARTED:
+								return { ...state, casting: true };
+							case cast.framework.SessionState.SESSION_RESUMED:
+								// TODO: if we log into a room while state.casting=true,
+								// then sync our current playing state
+								return { ...state, casting: true };
+							case cast.framework.SessionState.SESSION_ENDED:
+								return { ...state, casting: false };
+								break;
+							default:
+								return state;
+						}
+					},
+					onRemotePlayerEvent(state, event) {
+						console.log("Remote player event: ", event);
+						return { ...state };
+					}
+				}),
+			],
+			node: document.getElementById("app"),
+		})
+	</script>
+	<!-- Needs to be loaded after the main script, and can't be bundled -->
+	<script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+</head>
+
+<body>
+	<noscript>This page requires JavaScript</noscript>
+	<main id="app"></main>
+</body>
+
+</html>
