@@ -1,14 +1,19 @@
-/*global cast*/
+import type { Subscription } from "hyperapp";
+declare var cast: any;
 
-function _chromecastReceiverSub(dispatch, props) {
+type ReceiverSubProps = {
+  onMessageLoad?: CallableFunction;
+  loadMessageInterceptor?: CallableFunction;
+};
+function _chromecastReceiverSub(dispatch, props: ReceiverSubProps) {
   // Subscribe: set message interceptor callback and start
   const context = cast.framework.CastReceiverContext.getInstance();
   const playerManager = context.getPlayerManager();
 
-  if (props.onMessageLoad || props.messageInterceptor) {
+  if (props.onMessageLoad || props.loadMessageInterceptor) {
     playerManager.setMessageInterceptor(
       cast.framework.messages.MessageType.LOAD,
-      function(data) {
+      function (data) {
         if (props.onMessageLoad) dispatch(props.onMessageLoad, data);
         if (props.loadMessageInterceptor)
           return props.loadMessageInterceptor(data);
@@ -26,7 +31,7 @@ function _chromecastReceiverSub(dispatch, props) {
   context.start(options);
 
   // Unsubscribe: remove interceptor callback and stop
-  return function() {
+  return function () {
     if (props.onMessageLoad) {
       playerManager.setMessageInterceptor(
         cast.framework.messages.MessageType.LOAD,
@@ -37,6 +42,8 @@ function _chromecastReceiverSub(dispatch, props) {
   };
 }
 
-export function ReceiverSub(props) {
+export function ReceiverSub<S>(
+  props: ReceiverSubProps
+): Subscription<S, ReceiverSubProps> {
   return [_chromecastReceiverSub, props];
 }
