@@ -6,13 +6,13 @@ import type {
 } from "hyperapp";
 declare var cast: any;
 
-type ReceiverSubProps = {
-  onMessageLoad?: Dispatchable;
+type ReceiverSubProps<S> = {
+  onMessageLoad?: Dispatchable<S>;
   loadMessageInterceptor?: CallableFunction;
 };
-function _chromecastReceiverSub(
-  dispatch: Dispatch,
-  props: ReceiverSubProps
+function _chromecastReceiverSub<S>(
+  dispatch: Dispatch<S>,
+  props: ReceiverSubProps<S>
 ): Unsubscribe {
   // Subscribe: set message interceptor callback and start
   const context = cast.framework.CastReceiverContext.getInstance();
@@ -51,7 +51,7 @@ function _chromecastReceiverSub(
 }
 
 export function ReceiverSub<S>(
-  props: ReceiverSubProps
-): Subscription<S, ReceiverSubProps> {
+  props: ReceiverSubProps<S>
+): Subscription<S, ReceiverSubProps<S>> {
   return [_chromecastReceiverSub, props];
 }

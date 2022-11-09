@@ -16,8 +16,9 @@
   "source": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/module.js",
+  "types": "dist/types.d.ts",
   "peerDependencies": {
-    "hyperapp": "^2.0.0"
+    "hyperapp": "^2.0.22"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",

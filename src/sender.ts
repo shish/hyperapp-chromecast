@@ -1,25 +1,35 @@
 /*eslint no-unused-vars: "warn"*/
 
-import type { Dispatchable, Subscription } from "hyperapp";
+import type {
+  Dispatch,
+  Dispatchable,
+  Effect,
+  Subscription,
+  Unsubscribe,
+} from "hyperapp";
 declare var chrome: any;
 declare var cast: any;
 
-type SenderSubProps = {
+type SenderSubProps<S> = {
   receiverApplicationId: string;
-  onCastStateChanged?: Dispatchable;
-  onSessionStateChanged?: Dispatchable;
-  onRemotePlayerEvent?: Dispatchable;
+  onCastStateChanged?: Dispatchable<S>;
+  onSessionStateChanged?: Dispatchable<S>;
+  onRemotePlayerEvent?: Dispatchable<S>;
 };
 
-function _senderSub(dispatch, props: SenderSubProps) {
+function _senderSub<S>(
+  dispatch: Dispatch<S>,
+  props: SenderSubProps<S>
+): Unsubscribe {
   function onCastStateChanged(event) {
-    dispatch(props.onCastStateChanged, event);
+    if (props.onCastStateChanged) dispatch(props.onCastStateChanged, event);
   }
   function onSessionStateChanged(event) {
-    dispatch(props.onSessionStateChanged, event);
+    if (props.onSessionStateChanged)
+      dispatch(props.onSessionStateChanged, event);
   }
   function onRemotePlayerEvent(event) {
-    dispatch(props.onRemotePlayerEvent, event);
+    if (props.onRemotePlayerEvent) dispatch(props.onRemotePlayerEvent, event);
   }
 
   window["__onGCastApiAvailable"] = function (isAvailable) {
@@ -88,18 +98,18 @@ function _senderSub(dispatch, props: SenderSubProps) {
   };
 }
 
-export function SenderSub<S>(props): Subscription<S, SenderSubProps> {
+export function SenderSub<S>(props): Subscription<S, SenderSubProps<S>> {
   return [_senderSub, props];
 }
 
-type LoadMediaProps = {
+type LoadMediaProps<S> = {
   contentId: string;
   contentType: string;
   credentials: string;
-  onSuccess: CallableFunction;
-  onFailure: CallableFunction;
+  onSuccess: Dispatchable<S>;
+  onFailure: Dispatchable<S>;
 };
-export function LoadMedia(props: LoadMediaProps) {
+export function LoadMedia<S>(props: LoadMediaProps<S>): Effect<S> {
   return [
     function (dispatch, props) {
       let context = cast.framework.CastContext.getInstance();
@@ -124,7 +134,7 @@ export function LoadMedia(props: LoadMediaProps) {
   ];
 }
 
-export function Stop() {
+export function Stop<S>(): Effect<S> {
   return [
     function (dispatch, props) {
       var player = new cast.framework.RemotePlayer();
@@ -134,7 +144,7 @@ export function Stop() {
     {},
   ];
 }
-export function PlayOrPause() {
+export function PlayOrPause<S>(): Effect<S> {
   return [
     function (dispatch, props) {
       var player = new cast.framework.RemotePlayer();
@@ -144,7 +154,7 @@ export function PlayOrPause() {
     {},
   ];
 }
-export function MuteOrUnmute() {
+export function MuteOrUnmute<S>(): Effect<S> {
   return [
     function (dispatch, props) {
       var player = new cast.framework.RemotePlayer();
@@ -154,7 +164,7 @@ export function MuteOrUnmute() {
     {},
   ];
 }
-export function SetVolumeLevel(volume: number) {
+export function SetVolumeLevel<S>(volume: number): Effect<S> {
   return [
     function (dispatch, props) {
       var player = new cast.framework.RemotePlayer();
@@ -165,7 +175,7 @@ export function SetVolumeLevel(volume: number) {
     { volume },
   ];
 }
-export function Seek(time: number) {
+export function Seek<S>(time: number): Effect<S> {
   return [
     function (dispatch, props) {
       var player = new cast.framework.RemotePlayer();
