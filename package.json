@@ -1,6 +1,6 @@
 {
   "name": "@shish2k/hyperapp-chromecast",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Some minimal glue to use chromecast APIs from inside the HyperApp framework.",
   "author": "Shish <shish+npm@shishnet.org>",
   "license": "MIT",
