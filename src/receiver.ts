@@ -1,11 +1,19 @@
-import type { Subscription } from "hyperapp";
+import type {
+  Dispatch,
+  Dispatchable,
+  Subscription,
+  Unsubscribe,
+} from "hyperapp";
 declare var cast: any;
 
 type ReceiverSubProps = {
-  onMessageLoad?: CallableFunction;
+  onMessageLoad?: Dispatchable;
   loadMessageInterceptor?: CallableFunction;
 };
-function _chromecastReceiverSub(dispatch, props: ReceiverSubProps) {
+function _chromecastReceiverSub(
+  dispatch: Dispatch,
+  props: ReceiverSubProps
+): Unsubscribe {
   // Subscribe: set message interceptor callback and start
   const context = cast.framework.CastReceiverContext.getInstance();
   const playerManager = context.getPlayerManager();

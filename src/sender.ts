@@ -1,14 +1,14 @@
 /*eslint no-unused-vars: "warn"*/
 
-import type { Subscription } from "hyperapp";
+import type { Dispatchable, Subscription } from "hyperapp";
 declare var chrome: any;
 declare var cast: any;
 
 type SenderSubProps = {
   receiverApplicationId: string;
-  onCastStateChanged?: CallableFunction;
-  onSessionStateChanged?: CallableFunction;
-  onRemotePlayerEvent?: CallableFunction;
+  onCastStateChanged?: Dispatchable;
+  onSessionStateChanged?: Dispatchable;
+  onRemotePlayerEvent?: Dispatchable;
 };
 
 function _senderSub(dispatch, props: SenderSubProps) {
